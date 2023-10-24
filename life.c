@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
 #include <stdbool.h>
@@ -72,11 +73,11 @@ void renderGrid() {
 }
 
 int main() {
-  WINDOW *win;
   initscr();
   noecho();
   keypad(stdscr, TRUE);
   mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
+  curs_set(0);
   getmaxyx(stdscr, rows, cols);
 
   grid = (bool **)malloc(rows * sizeof(bool *));
@@ -97,7 +98,9 @@ int main() {
     updateGrid();
     //addstr(win, "Hello world", 0, 0);
     //mvaddstr(0, strlen("Hello world"), "Hello world");
-    mvaddstr(0, 0, "Hello world");
+    attron(A_BOLD | A_UNDERLINE);
+    mvaddstr(0, (cols/2 - strlen("Conway's Game of Life")/2), "Conway's Game of Life");
+    attroff(A_BOLD | A_UNDERLINE);
     refresh();
     getch();
   }
