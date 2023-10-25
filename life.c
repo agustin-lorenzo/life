@@ -3,6 +3,7 @@
 #include <ncurses.h>
 #include <stdbool.h>
 #include <string.h>
+#include <time.h>
 
 int rows;
 int cols;
@@ -19,7 +20,7 @@ int getNumNeighbors(int i, int j) {
     int y = j + deltaRow[i];
 
     if (x >= 0 && x < cols && y >= 0 && y < rows
-    && grid[x][y] == true) {
+    && grid[y][x] == true) {
       count++;
     }
   }
@@ -62,11 +63,11 @@ void renderGrid() {
 	mvaddch(i, j, 'O');
       } else {
 	start_color();
-	init_color(1, 85, 85, 85);
-	init_pair(1, 1, COLOR_BLACK);
-	attron(COLOR_PAIR(1) | A_DIM);
+	init_color(1, 100, 100, 100);
+	init_pair(2, 1, COLOR_BLACK);
+	attron(COLOR_PAIR(2) | A_DIM);
 	mvaddch(i, j, 'X');
-	attroff(COLOR_PAIR(1) | A_DIM);
+	attroff(COLOR_PAIR(2) | A_DIM);
       }
     }
   }
@@ -79,17 +80,19 @@ int main() {
   mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL);
   curs_set(0);
   getmaxyx(stdscr, rows, cols);
+  srand(time(NULL));
 
   grid = (bool **)malloc(rows * sizeof(bool *));
   for (int i = 0; i < rows; i++) {
     grid[i] = (bool *)malloc(cols * sizeof(bool));
     for (int j = 0; j < cols; j++) {
-      grid[i][j] = false; // Initialize all cells as dead
+      double randomValue = (double)rand() / RAND_MAX;
+      if (randomValue > 0.5) {
+	grid[i][j] = true; // Initialize all cells randomly
+      } else {
+	grid[i][j] = false;
+      }
     }
-  }
-
-  for (int i = 0; i < rows && i < cols; i++) {
-    grid[i][i] = true;
   }
 
   // Render the grid for each new step
@@ -98,9 +101,11 @@ int main() {
     updateGrid();
     //addstr(win, "Hello world", 0, 0);
     //mvaddstr(0, strlen("Hello world"), "Hello world");
-    attron(A_BOLD | A_UNDERLINE);
+    init_color(1, 200, 200, 200);
+    init_pair(1, 1, COLOR_WHITE);
+    attron(COLOR_PAIR(1) | A_BOLD | A_UNDERLINE);
     mvaddstr(0, (cols/2 - strlen("Conway's Game of Life")/2), "Conway's Game of Life");
-    attroff(A_BOLD | A_UNDERLINE);
+    attroff(COLOR_PAIR(1) | A_BOLD | A_UNDERLINE);
     refresh();
     getch();
   }
@@ -110,9 +115,9 @@ int main() {
   for (int i = 0; i < rows; i++) {
     free(grid[i]);
   }
-  
   free(grid);
   printf("\n\n");
+  
   endwin();
   return 0;
   
